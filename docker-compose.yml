@@ -1,23 +1,32 @@
-version: '3'
+#
+# https://wingetty.dev/
+# https://github.com/thilojaeggi/WinGetty
+#
+---
 services:
+#
   wingetty:
     container_name: wingetty
     build:
       context: .
       dockerfile: Dockerfile
     image: ghcr.io/thilojaeggi/wingetty:stable
-    ports:
-      - 8080:8080
-    volumes:
-      - instance_volume:/app/instance # This is where the database will be stored
-      - packages_volume:/app/app/packages # This is where the packages will be stored
     environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
       - WINGETTY_SQLALCHEMY_DATABASE_URI="sqlite:///database.db" # You can use any database URI supported by SQLAlchemy, so you can use MySQL, PostgreSQL, etc.
-      - WINGETTY_SECRET_KEY="secret" # Change this to a random string
-      - WINGETTY_ENABLE_REGISTRATION=0 # Enable open registration (0 = disabled, 1 = enabled)
-      - WINGETTY_REPO_NAME="WinGetty" # You can change this to whatever you want
-      - LOG_LEVEL=INFO # Change this to DEBUG if you want to see more logs
-      - TZ=Europe/Paris # Change this to your timezone
-volumes:
-  instance_volume:
-  packages_volume:
+      - WINGETTY_SECRET_KEY=${WINGETTY_SECRET_KEY} # Change this to a random string
+      - WINGETTY_ENABLE_REGISTRATION=${WINGETTY_ENABLE_REGISTRATION} # Enable open registration (0 = disabled, 1 = enabled)
+      - WINGETTY_REPO_NAME=${WINGETTY_REPO_NAME} # You can change this to whatever you want
+      - LOG_LEVEL=${WINGETTY_LOG_LEVEL} # Change this to DEBUG if you want to see more logs
+    volumes:
+      - ${LOCVOL1}wingetty/app:/app/instance # This is where the database will be stored
+      - ${LOCVOL1}wingetty/packages:/app/app/packages # This is where the packages will be stored
+    #ports:
+      #- 8080:8080
+#
+networks:
+  default:
+    name: ${CONNET}
+    external: true
